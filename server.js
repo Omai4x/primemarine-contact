@@ -37,13 +37,6 @@ app.post('/send-message', async (req, res) => {
         return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Verify reCAPTCHA
-    const recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET}&response=${recaptchaToken}`;
-    const recaptchaResponse = await fetch(recaptchaUrl, { method: 'POST' });
-    const recaptchaData = await recaptchaResponse.json();
-    if (!recaptchaData.success) {
-        return res.status(400).json({ error: 'reCAPTCHA verification failed' });
-    }
 
     // Set up Nodemailer with SendGrid
     const transporter = nodemailer.createTransport({
