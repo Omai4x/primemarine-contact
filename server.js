@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
-const fetch = require('node-fetch');
 
 const app = express();
 
@@ -27,16 +26,15 @@ app.options('/send-message', (req, res) => {
 
 // Endpoint for form submission
 app.post('/send-message', async (req, res) => {
-    const { name, email, subject, message, privacy, recaptchaToken } = req.body;
+    const { name, email, subject, message, privacy } = req.body;
 
     // Server-side validation
-    if (!name || !email || !subject || !message || !privacy || !recaptchaToken) {
+    if (!name || !email || !subject || !message || !privacy) {
         return res.status(400).json({ error: 'All fields are required' });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return res.status(400).json({ error: 'Invalid email format' });
     }
-
 
     // Set up Nodemailer with SendGrid
     const transporter = nodemailer.createTransport({
@@ -50,11 +48,29 @@ app.post('/send-message', async (req, res) => {
 
     // Email options
     const mailOptions = {
-        from: email,
+        from: '"Prime Marine SE" <emmanuelokechukwu291@gmail.com>', // Verified Sender Identity with display name
         to: process.env.EMAIL_TO,
-        subject: `Contact Form: ${subject}`,
+        subject: `Contact Form Submission: ${subject}`,
         text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}\nPrivacy Agreed: ${privacy}`,
-        replyTo: email
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                <h2 style="color: #24287c;">New Contact Form Submission</h2>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Subject:</strong> ${subject}</p>
+                <p><strong>Message:</strong> ${message}</p>
+                <p><strong>Privacy Agreement:</strong> ${privacy ? 'Yes' : 'No'}</p>
+                <hr style="border-top: 1px solid #e0e0e0;">
+                <p style="font-size: 12px; color: #666;">
+                    This email was sent from the Prime Marine SE contact form. 
+                    <a href="mailto:${email}">Reply to this email</a> to contact the sender.
+                </p>
+                <p style="font-size: 12px; color: #666;">
+                    <a href="https://primemarine-se.com/unsubscribe">Unsubscribe</a> from future emails.
+                </p>
+            </div>
+        `,
+        replyTo: email // User's email for replies
     };
 
     try {
