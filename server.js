@@ -11,13 +11,18 @@ app.use(express.static('public'));
 // Parse JSON bodies
 app.use(bodyParser.json());
 
-// CORS middleware (adjust for production)
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*'); // Replace with your Render domain in production
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    next();
-});
+// CORS middleware
+   app.use(cors({
+       origin: [
+           'http://localhost:3000', // Local development
+           'https://primemarine-contact.onrender.com', // Render backend (if frontend served here)
+           'https://your-frontend.netlify.app', // Replace with your frontend URL if separate
+           'https://primemarine-se.com' // Your custom domain (if applicable)
+       ],
+       methods: ['POST', 'OPTIONS'],
+       allowedHeaders: ['Content-Type'],
+       credentials: true // If using cookies/auth (optional)
+   }));
 
 // Handle OPTIONS preflight
 app.options('/send-message', (req, res) => {
