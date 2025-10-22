@@ -615,6 +615,7 @@
 
             // Prepare form data
             const formData = { name, email, subject, message, privacy };
+            console.log('Sending data:', formData); // Log the data being sent
 
             // Show loading state
             const submitButton = form.querySelector('button[type="submit"]');
@@ -629,6 +630,7 @@
                 });
 
                 const result = await response.json();
+                console.log('Response:', result); // Log the response
                 if (response.ok) {
                     statusDiv.textContent = 'Message sent successfully!';
                     statusDiv.style.color = 'green';
@@ -638,6 +640,7 @@
                     statusDiv.style.color = 'red';
                 }
             } catch (error) {
+                console.error('Fetch error:', error); // Log any network errors
                 statusDiv.textContent = 'Network error. Please try later.';
                 statusDiv.style.color = 'red';
             } finally {

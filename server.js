@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 const cors = require('cors');
 
 const app = express();
@@ -42,19 +42,12 @@ app.post('/send-message', async (req, res) => {
         return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Set up Nodemailer with SendGrid
-    const transporter = nodemailer.createTransport({
-        host: 'smtp.sendgrid.net',
-        port: 587,
-        auth: {
-            user: 'apikey',
-            pass: process.env.SENDGRID_API_KEY
-        }
-    });
+    // Set SendGrid API key
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
     // Email options
-    const mailOptions = {
-        from: '"Prime Marine SE" <sales@primemarine-se.com>', // Verified Sender Identity
+    const msg = {
+        from: '"Prime Marine SE" <emmanuelokechukwu291@gmail.com>', // Verified Sender Identity
         to: process.env.EMAIL_TO,
         subject: `Contact Form Submission: ${subject}`,
         text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}\nPrivacy Agreed: ${privacy}`,
@@ -80,10 +73,10 @@ app.post('/send-message', async (req, res) => {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
+        await sgMail.send(msg);
         res.status(200).json({ success: true });
     } catch (error) {
-        console.error('Email error:', error);
+        console.error('SendGrid API error:', error.response ? error.response.body : error);
         res.status(500).json({ error: 'Failed to send email' });
     }
 });
